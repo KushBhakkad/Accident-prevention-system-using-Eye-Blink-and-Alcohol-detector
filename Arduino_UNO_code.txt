@@ -1,0 +1,45 @@
+// Declare constants and variables
+const int alcoholPin = 2;
+const int motorPin = 12;
+const int buzzerPin = 13;
+//const int motorPin1 = 11;
+//const int buzzerPin1 = 10; // Changed variable name from buzzerPin2 to buzzerPin1
+const int irPin = 3; // Changed pin number to avoid conflict with motorPin
+long startTime = 0; // Renamed variable "time" to "startTime" and initialized to 0
+
+void setup() {
+  pinMode(motorPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(alcoholPin, INPUT);
+  pinMode(irPin, INPUT);
+  digitalWrite(motorPin, HIGH);
+}
+
+void loop() {
+  if (!digitalRead(alcoholPin)) { // Check if alcoholPin is LOW (i.e., alcohol is detected)
+    startTime = millis(); // Record the start time
+    while (!digitalRead(alcoholPin)) { // Continue while alcohol is still detected
+      if (timeDelay() >= 0) digitalWrite(buzzerPin, LOW); // If 2 seconds have passed, turn off the buzzer
+      if (timeDelay() >= 0) digitalWrite(motorPin,HIGH); // If 0 seconds have passed, turn off the motor
+      delay(1000); // Wait 1 second before checking again
+    }
+    digitalWrite(buzzerPin, HIGH); // Once alcohol is no longer detected, turn on the buzzer and motor
+    digitalWrite(motorPin, LOW);
+  } 
+   else if (!digitalRead(irPin)) { // Check if irPin is LOW (i.e., obstacle is detected)
+    startTime = millis(); // Record the start time
+    while (!digitalRead(irPin)) { // Continue while obstacle is still detected
+      if (timeDelay() >= 4) digitalWrite(buzzerPin, HIGH); // If 0 seconds have passed, turn off the buzzer
+      if (timeDelay() >= 4) digitalWrite(motorPin, LOW); // If 4 seconds have passed, turn off the motor
+      delay(1000); // Wait 1 second before checking again
+    }
+    digitalWrite(buzzerPin, LOW); // Once obstacle is no longer detected, turn on the buzzer and motor
+    digitalWrite(motorPin, HIGH);
+  }
+}
+
+int timeDelay() { // Function to calculate the elapsed time in seconds
+  long elapsedTime = millis() - startTime;
+  elapsedTime = elapsedTime / 1000;
+  return elapsedTime;
+}
